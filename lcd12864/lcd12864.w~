@@ -1,0 +1,128 @@
+#include<stdio.h>
+#include<wiringPi.h>
+
+#define RS   9 
+#define RW   10
+#define EN   11
+
+
+void LCD12864_WriteCmd(char cmd);
+void LCD12864_Init();
+void LCD12864_WriteData(char data);
+void  LCD12864_Busy();
+void LCD12864_SetWindow(char x, char y);
+
+
+char *word="lcd12864_test";
+
+
+int main()
+{
+
+ wiringPiSetup();
+ pinMode(0,OUTPUT);
+ pinMode(1,OUTPUT);
+ pinMode(2,OUTPUT);
+ pinMode(3,OUTPUT);
+ pinMode(4,OUTPUT);
+ pinMode(5,OUTPUT);
+ pinMode(6,OUTPUT);
+ pinMode(7,OUTPUT);
+ pinMode(RS  ,OUTPUT);
+ pinMode(RW  ,OUTPUT);
+ pinMode(EN,OUTPUT);
+ 
+ 
+LCD12864_Init();
+char x=1,y=1;
+int i=0;
+LCD12864_SetWindow(x,y);
+    while(*word!='\0')
+    {	
+	if(i<64)
+	{	
+		LCD12864_WriteData(*word++);
+		i++;
+	}
+	else 
+	{
+		x++;
+		LCD12864_SetWindow(x,y;)
+		
+	}
+    }
+} 
+ 
+ 
+ void LCD12864_Init()
+{
+  LCD12864_WriteCmd(0x30);  //Ñ¡Ôñ»ù±¾Ö¸Áî²Ù×÷
+  LCD12864_WriteCmd(0x0c);  //ÏÔÊ¾¿ª£¬¹Ø¹â±ê
+  LCD12864_WriteCmd(0x01);  //ÏÔÊ¾¿ª£¬¹Ø¹â±ê
+ 
+
+}
+
+void LCD12864_WriteCmd(char cmd)
+{
+ LCD12864_Busy(); 
+digitalWrite(	RS ,0);
+digitalWrite(	RW ,0); 
+digitalWrite(	EN ,0);
+delay(5); 
+ digitalWriteByte((int)cmd); 
+  delay(5);
+    //·ÅÖÃÊý¾Ý
+digitalWrite(	EN ,1);       //Ð´Ê±Ðò
+  delay(5);
+digitalWrite(	EN ,0);            
+}
+
+
+void LCD12864_WriteData(char data)
+{
+ LCD12864_Busy();
+  digitalWrite(	RS ,1);    //Ñ¡ÔñÊý¾Ý
+  digitalWrite(	RW ,0);     //Ñ¡ÔñÐ´Èë
+  digitalWrite(	EN ,0);    //³õÊ¼»¯Ê¹ÄÜ¶Ë
+ digitalWriteByte((int)data);   //·ÅÖÃÊý¾Ý
+ delay(5);
+  digitalWrite(	EN ,1);     //Ð´Ê±Ðò
+  delay(5);
+   digitalWrite(	EN ,0);   
+                    
+}
+
+
+void LCD12864_Busy()
+{
+  digitalWrite(	RS ,0);    //Ñ¡ÔñÊý¾Ý
+  digitalWrite(	RW ,1);     //Ñ¡ÔñÐ´Èë
+  digitalWrite(	EN ,1);    //³õÊ¼»¯Ê¹ÄÜ¶Ë
+  pinMode(13,INPUT);
+  delayMicroseconds(10);
+  while(digitalRead(13))
+  {
+delayMicroseconds(1);
+  }
+  pinMode(13,OUTPUT);
+  delay(1);
+  digitalWrite(	EN ,0); 
+}
+
+void LCD12864_SetWindow(char x, char y)
+{
+  char pos;
+  if(x == 1)     // ¿¿¿¿¿¿¿80H
+    x = 0x80;   
+  else if(x == 2)  //¿¿¿¿¿¿¿90H
+    x = 0x90;  
+  else if(x == 3)  //¿¿¿¿¿¿¿88H
+    x = 0x88; 
+  else if(x == 4)  //¿¿¿¿¿¿¿98H
+    x = 0x98;
+  
+  pos = x + (y-1);
+  LCD12864_WriteCmd(pos);  
+   
+}

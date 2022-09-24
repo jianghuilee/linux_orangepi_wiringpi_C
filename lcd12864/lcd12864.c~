@@ -1,0 +1,142 @@
+#include<stdio.h>
+#include<wiringPi.h>
+
+#define RS   9 
+#define RW   10
+#define EN   11
+
+
+void LCD12864_WriteCmd(int cmd);
+ void LCD12864_Init();
+ void LCD12864_WriteData(int data);
+void  LCD12864_Busy();
+
+
+int word[16]={65,65,66,65,65,65,65,65,65,65,65,65,65,65,65,65};
+
+
+int main()
+{
+
+ wiringPiSetup();
+ delay(1);
+ LCD12864_Init();
+ pinMode(0,OUTPUT);
+ delay(1);
+ pinMode(1,OUTPUT);
+ delay(1);
+ pinMode(2,OUTPUT);
+ delay(1);
+ pinMode(3,OUTPUT);
+delay(1);
+ pinMode(4,OUTPUT);
+delay(1);
+ pinMode(5,OUTPUT);
+ delay(1);
+ pinMode(6,OUTPUT);
+ delay(1);
+ pinMode(7,OUTPUT);
+ delay(1);
+ pinMode(RS  ,OUTPUT);
+ delay(1);
+ pinMode(RW  ,OUTPUT);
+ delay(1);
+ pinMode(EN,OUTPUT);
+ delay(1);
+ delay(1);
+ int i;
+    LCD12864_WriteCmd(128);
+  while(1) 
+    {
+	    delay(10);
+      LCD12864_WriteData(word[i]);
+    }
+} 
+ }
+ 
+ void LCD12864_Init()
+{
+//  LCD12864_PSB = 1;    //选择并行输入
+  //LCD12864_RST = 1;    //复位
+  LCD12864_WriteCmd(48);  //选择基本指令操作
+  delay(5);
+  LCD12864_WriteCmd(15);  //显示开，关光标
+  delay(5);
+  delay(5);
+
+}
+
+void LCD12864_WriteCmd(int cmd)
+{
+ LCD12864_Busy(); 
+digitalWrite(	RS ,0);
+delayMicroseconds(100);
+digitalWrite(	RW ,0); 
+delayMicroseconds(100);
+digitalWrite(	EN ,0);
+delayMicroseconds(100);
+ 
+ digitalWriteByte(cmd); 
+  delay(5);
+    //放置数据
+digitalWrite(	EN ,1);       //写时序
+  delay(5);
+digitalWrite(	EN ,0);            
+}
+
+
+void LCD12864_WriteData(int data)
+{
+  int i;
+  i = 0;
+ LCD12864_Busy();
+  digitalWrite(	RS ,1);    //选择数据
+delayMicroseconds(100);
+  digitalWrite(	RW ,0);     //选择写入
+delayMicroseconds(100);
+  digitalWrite(	EN ,0);    //初始化使能端
+delayMicroseconds(100);
+ digitalWriteByte(data);   //放置数据
+ delay(5);
+  digitalWrite(	EN ,1);     //写时序
+  delay(5);
+   digitalWrite(	EN ,0);   
+                    
+}
+
+
+void LCD12864_Busy()
+{
+   digitalWrite(	RS ,0);    //选择数据
+  digitalWrite(	RW ,1);     //选择写入
+  digitalWrite(	EN ,1);    //初始化使能端
+  pinMode(13,INPUT);
+  int i=0;
+  delay(1);
+  while(1)
+  {
+  i=digitalRead(13);
+delayMicroseconds(10);
+  if(i)
+    {
+    i++;
+    if(i==100)
+     { 
+     printf("busy!!!\n");
+     break;
+      }  
+    }
+ else 
+   {
+   printf("not busy!!!\n");
+    break;
+   }   
+
+  }
+  pinMode(13,OUTPUT);
+  delay(1);
+   digitalWrite(	EN ,0); 
+delayMicroseconds(10);
+}
+
+

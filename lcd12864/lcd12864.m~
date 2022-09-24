@@ -1,0 +1,222 @@
+#include<stdio.h>
+#include<wiringPi.h>
+
+#define RS   9 
+#define RW   10
+#define EN   11
+
+void LCD12864_word();
+void LCD12864_WriteCmd(char cmd);
+void LCD12864_Init();
+void LCD12864_WriteData(char data);
+void LCD12864_Busy();
+void LCD12864_SetWindow(char x, char y);
+
+
+
+int main()
+{
+
+ wiringPiSetup();
+ pinMode(0,OUTPUT);
+ pinMode(1,OUTPUT);
+ pinMode(2,OUTPUT);
+ pinMode(3,OUTPUT);
+ pinMode(4,OUTPUT);
+ pinMode(5,OUTPUT);
+ pinMode(6,OUTPUT);
+ pinMode(7,OUTPUT);
+ pinMode(RS  ,OUTPUT);
+ pinMode(RW  ,OUTPUT);
+ pinMode(EN,OUTPUT);
+ LCD12864_Init();
+char  word[]=	
+	{
+	0xD6,0xD0, 0xCE,0xC4, 0xB2,0xE2, 0xCA,0xD4,0xD2,0xBA, 0xBE,0xA7, 0xCF,0xD4 ,0xCA,0xBE  
+	
+	};
+
+int i=0;
+char x=1,y=1;
+LCD12864_SetWindow(x,y);
+while(word[i]!='\0')	
+     {	if(i<16)
+	     {
+     		LCD12864_WriteData(word[i]);
+    		i++;
+	     }
+
+     }
+
+
+LCD12864_word();
+
+
+
+
+}
+void LCD12864_Init()
+{
+
+LCD12864_WriteCmd(0x30);
+delay(2);
+LCD12864_WriteCmd(0x30);  //ѡ??????ָ??????
+delay(2);
+LCD12864_WriteCmd(0x30);  //ѡ??????ָ??????
+delay(2);
+LCD12864_WriteCmd(0x08);  //ѡ??????ָ??????
+delay(2);
+LCD12864_WriteCmd(0x10);  //ѡ??????ָ??????
+  delay(2);
+  LCD12864_WriteCmd(0x0c);  //??ʾ?????ع???
+  delay(2);
+  LCD12864_WriteCmd(0x01);  //ѡ??????ָ??????
+  delay(2);
+  LCD12864_WriteCmd(0x06);  //??ʾ?????ع???
+ 
+
+}
+
+void LCD12864_WriteCmd(char cmd)
+{
+ LCD12864_Busy(); 
+digitalWrite(	RS ,0);
+digitalWrite(	RW ,0); 
+digitalWrite(	EN ,0);
+delay(1); 
+ digitalWriteByte((int)cmd); 
+  delay(1);
+    //????????
+digitalWrite(	EN ,1);       //дʱ??
+  delay(1);
+digitalWrite(	EN ,0);            
+}
+
+
+void LCD12864_WriteData(char data)
+{
+ LCD12864_Busy();
+  digitalWrite(	RS ,1);    //ѡ??????
+  digitalWrite(	RW ,0);     //ѡ??д??
+  digitalWrite(	EN ,0);    //??ʼ??ʹ?ܶ?
+ digitalWriteByte((int)data);   //????????
+ delay(1);
+  digitalWrite(	EN ,1);     //дʱ??
+  delay(1);
+   digitalWrite(	EN ,0);   
+                    
+}
+
+
+void LCD12864_Busy()
+{
+  digitalWrite(	RS ,0);    //ѡ??????
+  digitalWrite(	RW ,1);     //ѡ??д??
+  digitalWrite(	EN ,1);    //??ʼ??ʹ?ܶ?
+  pinMode(13,INPUT);
+  delayMicroseconds(10);
+  while(digitalRead(13))
+  {
+delayMicroseconds(1);
+  }
+  pinMode(13,OUTPUT);
+  delay(1);
+  digitalWrite(	EN ,0); 
+}
+
+void LCD12864_SetWindow(char x, char y)
+{
+  char pos;
+  if(x == 1)     // ???????80H
+    x = 0x80;   
+  else if(x == 2)  //???????90H
+    x = 0x90;  
+  else if(x == 3)  //???????88H
+    x = 0x88; 
+  else if(x == 4)  //???????98H
+    x = 0x98;
+
+  pos = x + (y-1);
+ 
+  LCD12864_WriteCmd(pos);  
+   
+}
+
+void LCD12864_word()
+{
+int i;
+char word_1[32]=
+{
+0x00, 0x00, 0x00, 0x0e, 0x0e, 0x0e, 0xff, 0x0e, 0x0e, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x00, 0x00, 0x70, 0x70, 0x70, 0xff, 0x70, 0x70, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+
+};
+
+char word_2[32]=
+{
+0x00,0x00,0x00,0x00,0x03,0x80,0x02,0x40,0x02,0x20,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x20,0x02,0x40,0x03,0x80,0x00,0x00,0x00,0x00
+};
+char word_3[32]=
+{
+ 0x00,0x00,0x00,0x00,0x03,0x80,0x02,0x40,0x02,0x20,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x10,0x02,    0x10,0x02,0x20,0x02,0x40,0x03,0x80,0x00,0x00,0x00,0x00
+
+
+};
+char word_4[32]=
+
+{
+	 0x00,0x00,0x00,0x00,0x03,0x80,0x02,0x40,0x02,0x20,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x10,0x02,0x10,0x02,    0x10,0x02,0x20,0x02,0x40,0x03,0x80,0x00,0x00,0x00,0x00
+
+};
+
+LCD12864_WriteCmd(0x40);
+LCD12864_WriteCmd(0x30);
+for(i=0;i<32;i++)
+	{
+	 LCD12864_WriteData(word_1[i]);
+	 LCD12864_WriteCmd(0x80);
+	 LCD12864_WriteData(0x00);
+	 LCD12864_WriteData(0x00);
+	}	
+ LCD12864_WriteCmd(0x50);
+for(i=0;i<32;i++)
+
+	{                                   
+	 LCD12864_WriteData(word_2[i]);
+	 LCD12864_WriteCmd(0x90);
+	 LCD12864_WriteData(0x00);
+	 LCD12864_WriteData(0x00);
+	}
+ LCD12864_WriteCmd(0x60);
+for(i=0;i<32;i++)
+        {
+         LCD12864_WriteData(word_3[i]);
+         LCD12864_WriteCmd(0x88);
+	 LCD12864_WriteData(0x00);
+	 LCD12864_WriteData(0x00);
+	}
+ LCD12864_WriteCmd(0x70);
+for(i=0;i<32;i++)
+        {
+         LCD12864_WriteData(word_4[i]);
+	 LCD12864_WriteCmd(0x98);
+         LCD12864_WriteData(0x00);
+	 LCD12864_WriteData(0x00);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
