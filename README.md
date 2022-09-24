@@ -1,0 +1,3 @@
+# linux_orangepi_wiringpi_C
+基于linux操作系统，rk3399开发板调用wiringpi库的一些基本外设驱动
+有各种外设的基本驱动
